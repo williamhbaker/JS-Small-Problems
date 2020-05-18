@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>Multiple Choice</title>
+    <style>
+      form {
+        width: 500px;
+        margin: 0 auto;
+      }
+
+      .correct_true {
+        border: 1px solid green;
+        color: green;
+      }
+
+      .correct_false {
+        border: 1px solid red;
+        color: red;
+      }
+
+    </style>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.6/handlebars.min.js"></script>
+    <script src="5.js"></script>
+  </head>
+  <body>
+    <form>
+      <fieldset>
+        <dl>
+          <script type="text/x-handlebars" id="questionTemplate">
+            {{#each questions}}
+              <dt>
+                <label for="question_{{id}}">{{{description}}}</label>
+              </dt>
+              <dd>
+                <ul>
+                  {{#each options}}
+                    <li><input type="radio" name="question_{{../id}}" value="{{this}}">{{this}}</input></li>
+                  {{/each}}
+                </ul>
+              </dd>
+              <div>{{> resultTemplate}}</div>
+            {{/each}}
+          </script>
+
+          <script type="text/x-handlebars" id="resultTemplate" data-type="partial">
+            <p class="correct_{{correct}}" data-questionid="{{id}}">
+              {{#if correctAnswer}}
+                {{#if correct}}
+                  Correct!
+                {{else if answered}}
+                  Wrong!  Correct answer is: "{{correctAnswer}}"
+                {{else}}
+                  You didn't answer.  Correct answer is: "{{correctAnswer}}"
+                {{/if}}
+              {{/if}}
+            </p>
+          </script>
+        </dl>
+      </fieldset>
+
+      <input type="submit" value="Submit"></submit>
+      <input type="reset" value="reset"></submit>
+
+    </form>
+  </body>
+</html>

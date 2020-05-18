@@ -1,0 +1,219 @@
+<html>
+  <head>
+    <title>Tests</title>
+    <meta charset="utf-8">
+    <style>
+
+      html {
+        box-sizing: border-box;
+      }
+
+      *, *:before, *:after {
+        box-sizing: inherit;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Eliminate margins and padding on everything */
+      .styled-form * {
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Grey box and default font for fieldsets */
+      .styled-form fieldset {
+        background-color: #ececec;
+        border: 2px solid #999;
+        box-sizing: border-box;
+        color: #4d4d4d;
+        font-family:
+          myriad-pro, "Helvetica Neue", Helvetica, Roboto,
+          Arial, sans-serif;
+        padding: 1rem;
+      }
+
+      /* Custom appearance for labels */
+      .styled-form label {
+        font-weight: bold;
+        line-height: 1.5rem;
+      }
+
+      /* Custom appearance for input and select fields */
+      .styled-form input[type="text"],
+      .styled-form input[type="password"],
+      .styled-form input[type="email"],
+      .styled-form select {
+        border: 1px solid #06c;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font: normal 1rem Helvetica, Arial, sans-serif;
+        height: 40px;
+        padding: 5px 8px;
+      }
+
+      /* More customization for select lists */
+      .styled-form select {
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image:
+          url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgeD0iMTJweCIgeT0iMHB4IiB3aWR0aD0iMjRweCIgaGVpZ2h0PSIzcHgiIHZpZXdCb3g9IjAgMCA2IDMiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDYgMyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHBvbHlnb24gcG9pbnRzPSI1Ljk5MiwwIDIuOTkyLDMgLTAuMDA4LDAgIi8+PC9zdmc+");
+        background-position: 100% center;
+        background-repeat: no-repeat;
+        padding-right: 1.5rem;
+      }
+
+      .error {
+        color: red;
+        font-weight: bold;
+      }
+
+      #topError {
+        color: red;
+        font-weight: bold;
+      }
+
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+      class App {
+        constructor() {
+          this.form = document.querySelector('form');
+          this.bindEvents();
+        }
+
+        bindEvents() {
+          $(this.form).on('blur', 'input', this.checkEntireForm);
+          $(this.form).on('blur', 'input', this.handleBlur);
+          $(this.form).on('focus', 'input', this.handleFocus);
+          $(this.form).on('submit', this.handleFormSubmission);
+          $(this.form).find('input').on('invalid', this.handleBlur);
+
+          $(this.form).on('keypress', 'input[name="creditCard"]', this.handleCreditCardInput);
+          $(this.form).on('keypress', '#firstName, #lastName', this.handleNameInput);
+
+          $(this.form).find('input[name="creditCard"]').last().prevAll().on('keyup', this.advanceCreditCardInput);
+        }
+
+        advanceCreditCardInput(event) {
+          let currentLength = event.target.value.length;
+          let maxLength = Number(event.target.getAttribute('maxlength'));
+          if (currentLength === maxLength && event.key.match(/\d/)) {
+            let next = event.target.nextElementSibling;
+            next.focus();
+          }
+        }
+
+        handleNameInput(event) {
+          let pattern = /[a-z]/i;
+          if (!event.key.match(pattern)) {
+            event.preventDefault();
+          }
+        }
+
+        handleCreditCardInput(event) {
+          let pattern = /\d/i;
+          if (!event.key.match(pattern)) {
+            event.preventDefault();
+          }
+        }
+
+        handleFormSubmission(event) {
+          event.preventDefault();
+          let form = event.target;
+          let errorHeader = document.querySelector('#topError');
+
+          let formIsValid = form.checkValidity();
+
+          if (formIsValid) {
+            errorHeader.innerText = '';
+            form.reset();
+          } else {
+            errorHeader.innerText = 'Fix errors before submitting form.';
+          }
+        }
+
+        handleFocus(event) {
+          let thisInput = event.target;
+          let errorSpan = thisInput.parentElement.lastElementChild;
+          errorSpan.innerText = '';
+        }
+
+        handleBlur(event) {
+          let thisInput = event.target;
+          let errorSpan = thisInput.parentElement.lastElementChild;
+
+          let labelName = thisInput.getAttribute('name');
+          let labelText = document.querySelector(`label[for=${labelName}`).innerText;
+
+          if (thisInput.validity.valueMissing) {
+            errorSpan.innerText = `An input for ${labelText} is required.`;
+          } else if (thisInput.validity.patternMismatch) {
+            errorSpan.innerText = `Please enter a valid ${labelText}.`;
+          } else if (thisInput.validity.tooShort) {
+            let minLength = thisInput.getAttribute('minlength');
+            errorSpan.innerText = `${labelText} must be at least ${minLength} characters long.`;
+          }
+        }
+
+        checkEntireForm(event) {
+          let inputs = document.querySelector('form').querySelectorAll('input');
+          let formInvalid = [...inputs].some((input) => !input.validity.valid);
+
+          if (!formInvalid) {
+            document.querySelector('#topError').innerText = '';
+          }
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        new App();
+      });
+    </script>
+  </head>
+  <body>
+    <h1 id="topError"></h1>
+    <form class="styled-form" novalidate>
+      <dl>
+        <dt><label for="firstName">First Name</label></dt>
+        <dd>
+          <input type="text" id="firstName" name="firstName" required></input>
+          <span class="error"></span>
+        </dd>
+        <dt><label for="lastName">Last Name</label></dt>
+        <dd>
+          <input type="text" id="lastName" name="lastName" required"></input>
+          <span class="error"></span>
+        </dd>
+        <dt><label for="email">Email</label></dt>
+        <dd>
+          <input type="email" id="email" name="email" required pattern=".+@.+"></input>
+          <span class="error"></span>
+        </dd>
+        <dt><label for="password">Password</label></dt>
+        <dd>
+          <input type="password" id="password" name="password" required minlength="10"></input>
+          <span class="error"></span>
+        </dd>
+        <dt><label for="phone">Phone</label></dt>
+        <dd>
+          <input type="text" id="phone" name="phone" pattern="\d{3}-\d{3}-\d{4}"></input>
+          <span class="error"></span>
+        </dd>
+        <dt><label for="creditCard">Credit Card Number</label></dt>
+        <dd>
+          <input type="text" id="creditCard1" size="4" name="creditCard" maxlength="4" pattern="\d{4}"></input>
+          <input type="text" id="creditCard2" size="4" name="creditCard" maxlength="4" pattern="\d{4}"></input>
+          <input type="text" id="creditCard3" size="4" name="creditCard" maxlength="4" pattern="\d{4}"></input>
+          <input type="text" id="creditCard4" size="4" name="creditCard" maxlength="4" pattern="\d{4}"></input>
+          <span class="error"></span>
+        </dd>
+      </dl>
+      <button type="submit">Sign Up</button>
+
+    </form>
+
+  </body>
+</html>
