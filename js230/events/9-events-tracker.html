@@ -1,0 +1,94 @@
+<html>
+  <head>
+    <title>Tests</title>
+    <meta charset="utf-8">
+    <style>
+     #red, #blue, #green, #orange {
+         cursor: pointer;
+         color: white;
+         padding: 10px;
+         margin: 10px;
+     }
+     #red {
+         width: 400px;
+         height: 400px;
+         background: red;
+     }
+
+     #blue {
+         width: 200px;
+         height: 200px;
+         background: blue;
+     }
+
+     #orange {
+         width: 100px;
+         height: 100px;
+         background: orange;
+     }
+
+     #green {
+         width: 50px;
+         height: 50px;
+         background: green;
+     }
+    </style>
+
+
+  <script>
+    let tracker = {
+      events: [],
+      list() {
+        return this.events.slice();
+      },
+      elements() {
+        return this.events.map((event) => event.target);
+      },
+      clear() {
+        this.events.length = 0;
+        return this.events.length;
+      },
+      add(event) {
+        this.events.push(event);
+      },
+    };
+
+    function track(callback) {
+      return function(event) {
+        if (!tracker.list().includes(event)) {
+          tracker.add(event);
+        }
+
+        callback(event);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('red').addEventListener('click', track(function(event) {
+        document.body.style.background = 'red';
+      }));
+
+      document.getElementById('blue').addEventListener('click', track(function(event) {
+        event.stopPropagation();
+        document.body.style.background = 'blue';
+      }));
+
+      document.getElementById('orange').addEventListener('click', track(function(event) {
+        document.body.style.background = 'orange';
+      }));
+
+      document.getElementById('green').addEventListener('click', track(function(event) {
+        document.body.style.background = 'green';
+      }));
+    });
+  </script>
+  </head>
+  <body>
+    <div id="red">Red
+      <div id="blue">Blue</div>
+      <div id="orange">Orange
+        <div id="green">Green</div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>Selection Filters</title>
+    <style>
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      const classificationsToAnimals = {
+        Vertebrate: ['Bear', 'Turtle', 'Whale', 'Salmon', 'Ostrich'],
+        'Warm-blooded': ['Bear', 'Whale', 'Ostrich'],
+        'Cold-blooded': ['Salmon', 'Turtle'],
+        Mammal: ['Bear', 'Whale'],
+        Bird:  ['Ostrich'],
+      };
+
+      const animalsToClassifications = {
+        Bear:	['Vertebrate', 'Warm-blooded', 'Mammal'],
+        Turtle:	['Vertebrate', 'Cold-blooded'],
+        Whale:	['Vertebrate', 'Warm-blooded', 'Mammal'],
+        Salmon:	['Vertebrate', 'Cold-blooded'],
+        Ostrich:	['Vertebrate', 'Warm-blooded', 'Bird'],
+      }
+
+      let animalSelect;
+      let classificationSelect;
+
+      function populateList(listElem, listOptionsArray) {
+        listElem.options.length = 0;
+
+        listOptionsArray.forEach((classification) => {
+          listElem.appendChild(new Option(classification, classification));
+        });
+      }
+
+      function filterClassificationSelector(selectionKey) {
+        let newValues = animalsToClassifications[selectionKey];
+        populateList(classificationSelect, newValues);
+      }
+
+      function filterAnimalSelector(selectionKey) {
+        let newValues = classificationsToAnimals[selectionKey];
+        populateList(animalSelect, newValues);
+      }
+
+      function resetForm() {
+        let animalNames = ['Animals'].concat(Object.keys(animalsToClassifications));
+        let classifications = ['Classifications'].concat(Object.keys(classificationsToAnimals));
+
+        populateList(animalSelect, animalNames);
+        populateList(classificationSelect, classifications);
+
+        animalSelect.children[0].selected = true;
+        classificationSelect.children[0].selected = true;
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        animalSelect = document.querySelector('#animals');
+        classificationSelect = document.querySelector('#animal-classifications');
+
+        $(classificationSelect).on('change', function(event) {
+          let selected = event.target.value;
+          filterAnimalSelector(selected);
+        });
+
+        $(animalSelect).on('change', function(event) {
+          let selected = event.target.value;
+          filterClassificationSelector(selected);
+        });
+
+        $(document.getElementById('clear')).on('click', (event) => {
+          event.preventDefault();
+          resetForm();
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <form id="selection-filters" method="post" action="#">
+      <select id="animal-classifications">
+        <option value="Classifications" selected>Classifications</option>
+        <option value="Vertebrate">Vertebrate</option>
+        <option value="Warm-blooded">Warm-blooded</option>
+        <option value="Cold-blooded">Cold-blooded</option>
+        <option value="Mammal">Mammal</option>
+        <option value="Bird">Bird</option>
+      </select>
+      <select id="animals">
+        <option value="Animals" selected>Animals</option>
+        <option value="Bear">Bear</option>
+        <option value="Turtle">Turtle</option>
+        <option value="Whale">Whale</option>
+        <option value="Salmon">Salmon</option>
+        <option value="Ostrich">Ostrich</option>
+      </select>
+      <button id="clear">Clear</button>  
+    </form>
+  </body>
+</html>
