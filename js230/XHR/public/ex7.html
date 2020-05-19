@@ -1,0 +1,21 @@
+<script>
+async function deleteSchedule(id) {
+  let url = `/api/schedules/${id}`;
+  let init = {
+    method: 'delete'
+  };
+
+  let response = await fetch(url, init);
+  console.log(await response.text());
+}
+
+async function deleteBooking(id) {
+  let url = `/api/bookings/${id}`;
+  let init = {
+    method: 'put'
+  };
+
+  let response = await fetch(url, init);
+  console.log(await response.text());
+}
+</script>

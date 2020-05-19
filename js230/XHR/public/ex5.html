@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>Ex 5</title>
+    <style>
+      #new_student {
+        background-color: #D3D3D3;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+    </style>
+    <script src="javascripts/ex5app.js"></script>
+  </head>
+  <body>
+
+    <h1>Schedules</h1>
+
+    <form id="add_schedule">
+      <dl>
+        <dt><label for="id">Please select one schedule</label></dt>
+        <dd><select name="id" required><option></option></select></dd>
+        <dt><label for="student_email">Student Email</label></dt>
+        <dd><input type="text" name="student_email" required pattern=".+@.+"></input></dd>
+      </dl>
+      <input type="submit"></input>
+    </form>
+
+    <form id="new_student" class="hidden">
+      <dl>
+        <dt><label for="email">Email</label></dt>
+        <dd><input type="text" name="email" required pattern=".+@.+"></input></dd>
+        <dt><label for="name">Name</label></dt>
+        <dd><input type="text" name="name" required></input></dd>
+        <dt><label for="booking_sequence">Booking Sequence</label></dt>
+        <dd><input type="text" name="booking_sequence" required></input></dd>
+      </dl>
+      <input type="submit"></input>
+    </form>
+
+  </body>
+</html>
