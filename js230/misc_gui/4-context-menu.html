@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Delete Todos</title>
+  <style>
+    aside {
+      background-color: lightgray;
+      position: absolute;
+    }
+
+    ul#todoList {
+      width: 500px;
+      margin: 0 auto;
+    }
+
+    ul#todoList li {
+      outline: 1px solid red;
+      margin: 1rem 0;
+      font-size: 2rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #contextMenu {
+      position: absolute;
+      width: 10rem;
+      outline: 2px solid black;
+      background-color: green;
+    }
+
+    #contextMenu ul {
+      list-style-type: none;
+      padding: 1rem;
+    }
+
+    #contextMenu li {
+      margin: 1rem auto;
+      outline: 1px solid red;
+    }
+
+    #contextMenu li:hover {
+      background-color: pink;
+    }
+  </style> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.6/handlebars.min.js"></script>
+  <script>
+    const todo_items = [
+      { id: 1, title: 'Homework' },
+      { id: 2, title: 'Shopping' },
+      { id: 3, title: 'Calling Mom' },
+      { id: 4, title: 'Coffee with John '}
+    ];
+
+    class App {
+      constructor() {
+        this.templates = {};
+        this.compileTemplates();
+        this.renderPage();
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        document.addEventListener('click', this.handleClick.bind(this));
+        document.addEventListener('contextmenu', this.handleContext.bind(this));
+        document.querySelector('#contextMenu').addEventListener('click', this.handleContextClick.bind(this));
+      }
+
+      handleContextClick(event) {
+        event.preventDefault();
+        document.querySelector('#contextMenu').classList.add('hidden');
+        if (event.target.innerText === 'Delete Todo') {
+          this.showPrompt(event)
+        }
+      }
+
+      handleContext(event) {
+        let menu = document.querySelector('#contextMenu');
+        if (event.target.tagName === 'LI') {
+          event.preventDefault();
+          menu.style.top = `${event.clientY}px`;
+          menu.style.left = `${event.clientX}px`;
+          menu.classList.toggle('hidden');
+          [...menu.querySelectorAll('li')].forEach((li) => {
+            li.setAttribute('data-id', event.target.dataset.id);
+          });
+        } else {
+          menu.classList.add('hidden');
+        }
+      }
+
+      handleClick(event) {
+        if (event.target.tagName !== 'BUTTON') return;
+        if (!event.target.value) {
+          this.showPrompt(event);
+        } else {
+          this.handlePromptClick(event);
+        }
+      }
+
+      handlePromptClick(event) {
+        if (event.target.value === 'yes') {
+          let todoId = event.target.dataset.id;
+          let todoLi = document.querySelector(`ul#todoList li[data-id="${todoId}"]`);
+          todoLi.remove()
+        } 
+        document.querySelector('aside').remove();
+      }
+
+      showPrompt(event) {
+        let todoId = event.target.dataset.id;
+        let todoName = todo_items.find((item) => +item.id === +todoId).title;
+        let prompt = document.createElement('aside');
+        prompt.innerHTML = this.templates.deleteForm({ todoName, todoId });
+        prompt.style.top = `${event.clientY}px`;
+        prompt.style.left = `${event.clientX}px`;
+        document.body.appendChild(prompt);
+      }
+
+      compileTemplates() {
+        let templates = document.querySelectorAll('script[type="text/x-handlebars"]');
+        [...templates].forEach((template) => {
+          this.templates[template.id] = Handlebars.compile(template.innerHTML);
+          template.remove();
+        });
+      }
+
+      renderPage() {
+        let htmlStr = this.templates.listItem({todos: todo_items});
+        document.querySelector('body').insertAdjacentHTML('beforeend', htmlStr);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => new App());
+  </script>
+</head>
+<body>
+  <h1>Todo List</h1>
+
+  <script type="text/x-handlebars" id="listItem">
+    <ul id="todoList">
+      {{#each todos}}
+      <li data-id="{{id}}">{{title}}</li>
+      {{/each}}
+    </ul>
+  </script>
+
+  <script type="text/x-handlebars" id="deleteForm">
+    <p>Are you sure you want to delete {{todoName}}?</p>
+    <button data-id="{{todoId}}" value="yes">Yes</button><button data-id="{{todoId}}" value="no">No</button>
+  </script>
+
+  <div id="contextMenu" class="hidden">
+    <ul>
+      <a class="context" href=""><li>Show Details</li></a>
+      <a class="context" href=""><li>Edit Todo</li></a>
+      <a class="context" href=""><li>Delete Todo</li></a>
+    </ul>
+  </div>
+
+  </div>
+
+</body>
+</html>

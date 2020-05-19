@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Delete Todos</title>
+  <style>
+    aside {
+      background-color: lightgray;
+      position: absolute;
+    }
+  </style> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.6/handlebars.min.js"></script>
+  <script>
+    const todo_items = [
+      { id: 1, title: 'Homework' },
+      { id: 2, title: 'Shopping' },
+      { id: 3, title: 'Calling Mom' },
+      { id: 4, title: 'Coffee with John '}
+    ];
+
+    class App {
+      constructor() {
+        this.templates = {};
+        this.compileTemplates();
+        this.renderPage();
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        document.body.addEventListener('click', this.handleClick.bind(this));
+      }
+
+      handleClick(event) {
+        if (event.target.tagName !== 'BUTTON') return;
+        if (!event.target.value) {
+          this.toggleDisableDeleteButtons(true);
+          this.showPrompt(event);
+        } else {
+          this.handlePromptClick(event);
+        }
+      }
+
+      handlePromptClick(event) {
+        if (event.target.value === 'yes') {
+          let todoId = event.target.dataset.id;
+          console.log(`li[data-id="${todoId}"]`);
+          let todoLi = document.querySelector(`li[data-id="${todoId}"]`);
+          todoLi.remove()
+        } 
+        this.toggleDisableDeleteButtons(false);
+        document.querySelector('aside').remove();
+      }
+
+      toggleDisableDeleteButtons(bool) {
+        let buttons = document.querySelectorAll('button');
+        [...buttons].forEach((button) => {
+          if (button.innerText === 'Delete') {
+            button.disabled = bool;
+          }
+        });
+      }
+
+      showPrompt(event) {
+        let todoId = event.target.dataset.id;
+        let todoName = todo_items.find((item) => +item.id === +todoId).title;
+        let prompt = document.createElement('aside');
+        prompt.innerHTML = this.templates.deleteForm({ todoName, todoId });
+        prompt.style.top = `${event.clientY}px`;
+        prompt.style.left = `${event.clientX}px`;
+        document.body.appendChild(prompt);
+      }
+
+      compileTemplates() {
+        let templates = document.querySelectorAll('script[type="text/x-handlebars"]');
+        [...templates].forEach((template) => {
+          this.templates[template.id] = Handlebars.compile(template.innerHTML);
+          template.remove();
+        });
+      }
+
+      renderPage() {
+        let htmlStr = this.templates.listItem({todos: todo_items});
+        document.querySelector('body').insertAdjacentHTML('beforeend', htmlStr);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => new App());
+  </script>
+</head>
+<body>
+  <h1>Todo List</h1>
+
+  <script type="text/x-handlebars" id="listItem">
+    <ul>
+      {{#each todos}}
+      <li data-id="{{id}}">{{title}} <button data-id="{{id}}">Delete</button></li>
+      {{/each}}
+    </ul>
+  </script>
+
+  <script type="text/x-handlebars" id="deleteForm">
+    <p>Are you sure you want to delete {{todoName}}?</p>
+    <button data-id="{{todoId}}" value="yes">Yes</button><button data-id="{{todoId}}" value="no">No</button>
+  </script>
+
+</body>
+</html>
