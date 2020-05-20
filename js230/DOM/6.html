@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Node Swap</title>
+    <script>
+      function nodeSwap(firstId, secondId) {
+        let firstNode = document.getElementById(firstId);
+        let secondNode = document.getElementById(secondId);
+
+        if (!firstNode || !secondNode) return;
+
+        let dummy1 = document.createElement('div');
+        let dummy2 = document.createElement('div');
+
+        firstNode = firstNode.parentElement.replaceChild(dummy1, firstNode);
+        secondNode = secondNode.parentElement.replaceChild(dummy2, secondNode);
+
+        dummy1.parentElement.replaceChild(secondNode, dummy1);
+        dummy2.parentElement.replaceChild(firstNode, dummy2);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="1">
+      <div id="4"></div>
+      <div id="5">
+        <div id="6"></div>
+      </div>
+    </div>
+    <div id="2"></div>
+    <div id="3">
+      <div id="7"></div>
+      <div id="8"></div>
+      <div id="9"></div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Nodes to Array</title>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        function nodesToArr(node = document.body) {
+          let otherStuff = [];
+          [].forEach.call(node.children, (elem) => otherStuff.push(nodesToArr(elem)));
+          return [node.tagName, otherStuff];
+        }
+
+        console.log(nodesToArr());
+      });
+    </script>
+  </head>
+  <body>
+    <header id="1"></header>
+    <main id="2">
+      <div></div>
+      <div></div>
+    </main>
+    <footer id="3"></footer>
+  </body>
+</html>
