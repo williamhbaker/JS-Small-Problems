@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Buy Used Cars</title>
+  <style>
+    html {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    *, *:before, *:after {
+      box-sizing: inherit;
+      margin: 0;
+      padding: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-gap: 1rem;
+      max-width: 1000px;
+      margin: 0 2rem;
+    }
+  
+    .grid > div {
+      background: #f6f4ef;
+      padding: 1rem;
+      border-radius: 1rem;
+    }
+  
+    dl, dd, figure {
+      margin: 0;
+    }
+
+    figure {
+      text-align: center;
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: 1rem;
+    }
+
+    figcaption {
+      font-weight: bold;
+      margin-top: 0.5rem;
+      text-align: left;
+    }
+
+    button {
+      background-color: #ac9b6e;
+      border: none;
+      color: white;
+      font-weight: bold;
+      padding: 1rem;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      font-size: 1rem;
+      border-radius: 0.5rem;
+      margin: 0.5rem auto 0 auto;
+      width: 80%;
+    }
+
+    header {
+      background: #f6f4ef;
+      width: 100%;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+    }
+
+    header h1 {
+      margin-bottom: 0.75rem;
+    }
+
+    header form,
+    header dl {
+      display: flex;
+      align-items: center;
+    }
+
+    header dd + dt {
+      margin-left: 1rem;
+    }
+
+    header dd {
+      margin-left: 0.25rem;
+    }
+
+    input[type="submit"] {
+      background-color: #cec4aa;
+      border: none;
+      padding: 0.5rem 1rem;
+      border: 1px solid #000;
+      height: 2rem;
+      text-align: center;
+      text-decoration: none;
+      font-size: 1rem;
+      border-radius: 0.5rem;
+      margin-left: 1rem;
+    }
+
+    select {
+      width: 80px;
+      height: 25px;
+      background: #cec4aa;
+      height: 2rem;
+      border: 1px solid #000;
+      color: #000;
+      margin-left: 5px;
+      margin-right: 8px;
+      outline: none;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    option {
+      background: #cec4aa;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+  </style> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.6/handlebars.min.js"></script>
+  <script>
+    const cars = [
+      { make: 'Honda', image: 'http://placehold.it/200x200', model: 'Accord', year: 2005, price: 7000 },
+      { make: 'Honda', image: 'http://placehold.it/200x200', model: 'Accord', year: 2008, price: 11000 },
+      { make: 'Toyota', image: 'http://placehold.it/200x200', model: 'Camry', year: 2009, price: 12500 },
+      { make: 'Toyota', image: 'http://placehold.it/200x200', model: 'Corolla', year: 2016, price: 15000 },
+      { make: 'Suzuki', image: 'http://placehold.it/200x200', model: 'Swift', year: 2014, price: 9000 },
+      { make: 'Audi', image: 'http://placehold.it/200x200', model: 'A4', year: 2013, price: 25000 },
+      { make: 'Audi', image: 'http://placehold.it/200x200', model: 'A4', year: 2013, price: 26000 },
+    ];
+
+    class CarFilter {
+      constructor() {
+        this.carNodes = [];
+        this.template = null;
+        this.filterPropertyNames = ['make', 'model', 'year', 'price'];
+        this.activeFilter = {};
+        this.validCars = [];
+
+        this.compileTemplate();
+        this.makeCarNodes();
+        this.populateCars();
+        this.populateFilters();
+        this.bindEvents();
+      }
+
+      compileTemplate() {
+        let template = document.querySelector('script[type="text/x-handlebars"]');
+        this.template = Handlebars.compile(template.innerHTML);
+        template.remove();
+      }
+
+      makeCarNodes() {
+        this.carNodes  = cars.map((carData) => {
+          let thisNode = document.createElement('div');
+          thisNode.innerHTML = this.template(carData);
+          carData.divNode = thisNode;
+          return carData;
+        });
+      }
+
+      populateCars() {
+        this.carNodes.forEach((node) => {
+          document.querySelector('main').appendChild(node.divNode);
+        });
+      }
+
+      bindEvents() {
+        document.querySelector('form').addEventListener('submit', this.handleSubmit.bind(this));
+        document.querySelector('form').addEventListener('change', this.handleChange.bind(this));
+      }
+
+      handleSubmit(event) {
+        event.preventDefault();
+        this.updateActiveFilters();
+        this.applyActiveFilter();
+      }
+
+      handleChange(event) {
+        this.updateActiveFilters();
+        this.filterPropertyNames.forEach((name) => this.updateSelector(name));
+      }
+
+      updateSelector(propertyName, activeSelector) {
+        let selector = document.querySelector(`select[name="${propertyName}"]`);
+
+        let validValues = this.validCars.map((car) => String(car[propertyName]));
+        let optionsList = [...selector.children];
+
+        optionsList.forEach((option) => {
+          let hide = !(validValues.includes(option.value) || option.value === '');
+          option.classList.toggle('hidden', hide)
+        });
+      }
+
+      updateActiveFilters() {
+        let form = document.querySelector('form');
+        let data = new FormData(form);
+        let objData = Object.fromEntries(data.entries());
+
+        Object.keys(objData).forEach((key) => {
+          if (objData[key] === "") {
+            delete objData[key];
+          }
+        });
+
+        this.activeFilter = objData;
+        this.updateValidCars();
+      }
+
+      updateValidCars() {
+        let keys = Object.keys(this.activeFilter);
+        this.validCars = this.carNodes.filter((node) => {
+          return keys.every((key) =>
+            String(this.activeFilter[key]) === String(node[key])
+          );
+        });
+      }
+
+      applyActiveFilter() {
+        this.carNodes.forEach((node) => {
+          node.divNode.classList.toggle('hidden', !this.validCars.includes(node));
+        });
+      }
+
+      populateFilters() {
+        this.filterPropertyNames.forEach((propName) => this.fillSelector(propName));
+      }
+
+      fillSelector(propertyName) {
+        let selectorElement = document.querySelector(`select[name="${propertyName}"]`);
+        let optionsList = Array.from(new Set(this.carNodes.map((node) => node[propertyName])));
+        optionsList.sort((a, b) => {
+          if (a < b) {
+            return -1;
+          } else if (a > b) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+
+        optionsList.forEach((option) => {
+          let newOption = new Option(option);
+          selectorElement.appendChild(newOption);
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => (carFilter = new CarFilter()));
+  </script>
+</head>
+<body>
+
+  <header>
+    <h1>Buy Used Cars</h1>
+    <form>
+      <dl>
+        <dt><label for="make">Make</label></dt>
+        <dd><select name="make"><option></option></select></dd>
+        <dt><label for="model">Model</label></dt>
+        <dd><select name="model"><option></option></select></dd>
+        <dt><label for="price">Price</label></dt>
+        <dd><select name="price"><option></option></select></dd>
+        <dt><label for="year">Year</label></dt>
+        <dd><select name="year"><option></option></select></dd>
+      </dl>
+      <input type="submit" value="Filter"></input>
+    </form>
+  </header>
+
+  <main class="grid">
+    <script type="text/x-handlebars" id="carTemplate">
+        <dl>
+          <dt>
+            <figure>
+              <img src="{{image}}" alt="{{year}} {{make}} {{model}} - ${{price}}"/>
+              <figcaption>{{make}} {{model}}</figcaption>
+            </figure>
+          </dt>
+          <dd>
+            <p>Year: {{year}}</p>
+            <p>Price: ${{price}}</p>
+          </dd>
+          <button>Buy</button>
+        </dl>
+    </script>
+  </main>
+
+
+</body>
+</html>

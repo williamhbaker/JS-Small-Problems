@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculator</title>
+  <style>
+    body {
+      background: #22596e;
+    }
+    #calculator {
+      width: 350px;
+      height: 430px;
+      margin: 50px auto;
+      background: #fff;
+      border-radius: 4px;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+
+    #screen {
+      height: 120px;
+      border-bottom: 1px solid #ccc;
+      box-sizing: border-box;
+      padding: 10px;
+      margin: 0 0 10px 0;
+      text-align: right;
+      position: relative;
+    }
+
+    #screen .current_num {
+      font-size: 36px;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      margin: 0px;
+    }
+
+    #buttons a {
+      width: 82px;
+      height: 53px;
+      background: #ccc;
+      box-sizing: border-box;
+      padding: 15px 0 0 0;
+      text-align: center;
+      display: inline-block;
+      text-decoration: none;
+      color: #000;
+      margin-top: 5px;
+      font-size: 18px;
+      border-radius: 4px;
+    }
+
+    #bottons a:hover {
+      background: #bbb;
+    }
+  </style> 
+  <script>
+
+
+    class Calculator {
+      constructor() {
+        this.currentOperationField = document.querySelector('div#screen p.calculation');
+        this.currentNumberField = document.querySelector('div#screen p.current_num');
+        this.buttonsArea = document.querySelector('#buttons');
+        this.justDidCalc = false;
+
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        this.buttonsArea.addEventListener('click', this.handleButtonClick.bind(this));
+      }
+
+      handleButtonClick(event) {
+        event.preventDefault();
+        if (event.target.tagName !== 'A') return;
+        let inputVal = event.target.innerText;
+
+        if (inputVal.match(/\d/)) {
+          this.numberInput(inputVal);
+        } else if (inputVal.match('=')) {
+          this.evaluateOperation();
+        } else if (inputVal.match(/[\/\x\-\+\%]/)) {
+          this.operatorInput(inputVal);
+        } else if (inputVal.match(/\./)) {
+          this.dotInput();
+        } else if (inputVal.match('NEG')) {
+          this.negateInput();
+        } else if (inputVal.match(/^CE$/)) {
+          this.clearAll();
+        } else if (inputVal.match(/^C$/)) {
+          this.clearInput();
+        }
+      }
+
+      evaluateOperation() {
+        let opString = this.currentOperationField.innerText + ` ${this.currentNumberField.innerText}`;
+        let thisResult = eval(opString.replace(/x/g, '*'));
+        this.currentNumberField.innerText = thisResult;
+        this.currentOperationField.innerText = '';
+        this.justDidCalc = true;
+      }
+
+      negateInput() {
+        let currentNumber = Number(this.currentNumberField.innerText);
+        this.currentNumberField.innerText = currentNumber < 0 ? String(Math.abs(currentNumber)) : String(-currentNumber);
+      }
+
+      clearAll() {
+        this.currentOperationField.innerText  = '';
+        this.clearInput();
+      }
+
+      clearInput() {
+        this.currentNumberField.innerText = '0';
+      }
+
+      numberInput(number) {
+        if (this.justDidCalc) {
+          this.currentNumberField.innerText = number;
+          this.justDidCalc = false;
+        } else if (this.currentNumberField.innerText === '0' && number === '0') {
+          this.currentNumberField.innerText = '0';
+        } else if (this.currentNumberField.innerText === '0') {
+          this.currentNumberField.innerText = number;
+        } else {
+          this.currentNumberField.innerText += number;
+        }
+      }
+
+      dotInput() {
+        if (this.currentNumberField.innerText.match(/\./)) return;
+        this.currentNumberField.innerText += '.';
+      }
+
+      operatorInput(operator) {
+        let stringAdder = ` ${this.currentNumberField.innerText} ${operator}`;
+        if (this.currentOperationField.innerText) {
+          this.currentOperationField.innerText = this.currentOperationField.innerText + stringAdder;
+        } else {
+          this.currentOperationField.innerText = stringAdder;
+        }
+        this.currentNumberField.innerText = '0';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => new Calculator());
+
+  </script>
+</head>
+<body>
+
+  <div id="calculator">
+    <div id="screen">
+      <p class="calculation"></p>
+      <p class="current_num">0</p>
+    </div>
+
+    <div id="buttons">
+
+      <a href="#" id="ce" class="control">CE</a>  
+      <a href="#" id="c" class="control">C</a>
+      <a href="#" id="neg" class="control">NEG</a>
+      <a href="#" class="op">/</a>  <!-- other divide sign as further exp -->
+      <a href="#" class="digit">7</a>
+      <a href="#" class="digit">8</a>
+      <a href="#" class="digit">9</a>
+      <a href="#" class="op">x</a>
+      <a href="#" class="digit">4</a>
+      <a href="#" class="digit">5</a>
+      <a href="#" class="digit">6</a>
+      <a href="#" class="op">-</a>
+      <a href="#" class="digit">1</a>
+      <a href="#" class="digit">2</a>
+      <a href="#" class="digit">3</a>
+      <a href="#" class="op">+</a>
+      <a href="#" class="digit">0</a>
+      <a href="#" class="dot">.</a>
+      <a href="#" class="op">%</a>
+      <a href="#" class="result_button">=</a>  
+    </div>
+  </div>
+
+</body>
+</html>

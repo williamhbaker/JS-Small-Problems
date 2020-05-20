@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text Editor</title>
+  <script src="https://kit.fontawesome.com/2c07a8dceb.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      background: #55f;
+    }
+    #editor {
+      width: 800px;
+      height: 500px;
+      border: 1px solid #ccc;
+      font-family: Helvetica, Arial, 'sans-serif';
+      margin: 30px auto;
+    }
+
+    h1 {
+      color: #fff;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .text_box {
+      height: 100%;
+      max-height: 470px;
+      overflow: auto;
+      background: #fff;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+
+    .text_box:focus {
+      background: #fff;
+      outline: none;
+    }
+
+    .buttons {
+      height: 30px;
+      border-bottom: 1px solid #ccc;
+      font-family: 'Times New Roman', serif;
+      background: #ccc;
+      padding: 5px 0 0 5px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: none;
+      border: none;
+      width: 25px;
+      text-align: center;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    button.pushed {
+      border: #bbb;
+      background: #f9f9f9; 
+    }
+
+    button:hover {
+      border: #bbb;
+      background: #f9f9f9;
+    }
+  </style> 
+  <script>
+    class Editor {
+      constructor() {
+        this.commandTable = {
+          bold: () => document.execCommand('bold'),
+          italicize: () => document.execCommand('italic'),
+          underline: () => document.execCommand('underline'),
+          strikethrough: () => document.execCommand('strikeThrough'),
+          link: () => document.execCommand('createLink', false, prompt('Enter URL')),
+          ul: () => document.execCommand('insertUnorderedList'),
+          ol: () => document.execCommand('insertOrderedList'),
+          al_left: () => document.execCommand('justifyLeft'),
+          al_right: () => document.execCommand('justifyRight'),
+          al_center: () => document.execCommand('justifyCenter'),
+          al_justify: () => document.execCommand('justifyFull'),
+        }
+
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        document.querySelector('.buttons').addEventListener('click', this.handleClick.bind(this));
+      }
+
+      handleClick(event) {
+        if (event.target.tagName !== 'BUTTON') return;
+        let commandName = event.target.classList[0];
+        this.commandTable[commandName]();
+      }
+    }
+
+    let editor;
+    document.addEventListener('DOMContentLoaded', () => editor = new Editor());
+
+  </script>
+</head>
+<body>
+  <h1>Rich Text Editor</h1>
+  <div id="editor">
+    <div class="buttons">
+      <button class="bold fa fa-bold"></button>
+      <button class="italicize fa fa-italic"></button>
+      <button class="underline fa fa-underline"></button>
+      <button class="strikethrough fa fa-strikethrough"></button>
+      <button class="link fa fa-link"></button>
+      <button class="ul fa fa-list-ul"></button>
+      <button class="ol fa fa-list-ol"></button>
+      <button class="al_left fa fa-align-left"></button>
+      <button class="al_right fa fa-align-right"></button>
+      <button class="al_center fa fa-align-center"></button>
+      <button class="al_justify fa fa-align-justify"></button>
+    </div>
+    <div class="text_box" contenteditable="true"></div>
+  </div>
+</body>
+</html>

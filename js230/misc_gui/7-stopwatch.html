@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stopwatch</title>
+  <style>
+
+  </style> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.6/handlebars.min.js"></script>
+  <script>
+
+  class Stopwatch {
+    constructor() {
+      this.startStopButton = document.querySelector('#startstop');
+      this.resetButton = document.querySelector('#reset');
+      this.timeElement = document.querySelector('p');
+      this.elapsedTime = null;
+      this.running = false;
+      this.intervalRef = null;
+      this.bindEvents();
+    }
+
+    bindEvents() {
+      this.startStopButton.addEventListener('click', this.handleStartStopClick.bind(this));
+      this.resetButton.addEventListener('click', this.handleResetClick.bind(this));
+    }
+
+    handleStartStopClick() {
+      this.running = !this.running;
+      if (this.running) {
+        this.startTimer();
+      } else {
+        this.stopTimer();
+      }
+      this.startStopButton.innerText = this.running ? 'Stop' : 'Start';
+    }
+
+    incrementTime() {
+      this.elapsedTime += 10;
+      this.updateDisplay();
+    }
+
+    updateDisplay() {
+      let actualSeconds = Math.floor(this.elapsedTime / 1000);
+      let centiseconds = this.elapsedTime % 100;
+
+      let seconds = actualSeconds % 60;
+      let actualMinutes = Math.floor(actualSeconds / 60);
+
+      let minutes = actualMinutes % 60;
+      let hours = Math.floor(actualMinutes / 60);
+
+      this.timeElement.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(centiseconds).padStart(2, '0')}`;
+    }
+
+    startTimer() {
+      this.intervalRef = setInterval(this.incrementTime.bind(this), 10);
+    }
+
+    stopTimer() {
+      clearInterval(this.intervalRef);
+    }
+
+    handleResetClick() {
+      this.elapsedTime = 0;
+      this.timeElement.innerText = '00:00:00:00';
+    }
+
+  }
+  let stopWatch;
+  document.addEventListener('DOMContentLoaded', () => stopWatch = new Stopwatch());
+
+  </script>
+</head>
+<body>
+
+<p>00:00:00:00</p>
+<button id="startstop">Start</button><button id="reset">Reset</button>
+
+</body>
+</html>
